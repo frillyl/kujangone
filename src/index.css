@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* FONTS */
+  --font-heading: "Montserrat", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* COLORS  */
+  /* Light Theme */
+  --color-primary-light: #800000;
+  --color-secondary-light: #F2E8E8;
+  --color-accent-light: #FFC857;
+  --color-text-light: #2E2E2E;
+  --color-background-light: #FAFAFA;
+  --color-line-light: #E0E0E0;
+  /* Dark Theme */
+  --color-primary-dark: #006A4E;
+  --color-secondary-dark: #1E1E1E;
+  --color-accent-dark: #A7D129;
+  --color-text-dark: #F1F1F1;
+  --color-background-dark: #121212;
+  --color-line-dark: #FFFFFF;
+  /* Feedback */
+  /* Success */
+  --color-success-base: #2E7D32;
+  --color-success-light: #E8F5E9;
+  --color-success-dark: #1B5E20;
+  /* Warning */
+  --color-warning-base: #F9A825;
+  --color-warning-light: #FFF8E1;
+  --color-warning-dark: #5F4209;
+  /* Danger */
+  --color-danger-base: #C62828;
+  --color-danger-light: #FFEBEE;
+  --color-danger-dark: #8B1E1E;
+  /* Info */
+  --color-info-base: #0288D1;
+  --color-info-light: #E3F2FD;
+  --color-info-dark: #01579B;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.dark {
+  --color-background-light: var(--color-background-dark);
+  --color-secondary-light: var(--color-secondary-dark);
+  --color-text-light: var(--color-text-dark);
+  --color-primary-light: var(--color-primary-dark);
+  --color-line-light: var(--color-line-dark);
+}
+
+.dark input {
+  background-color: var(--color-secondary-dark);
+  color: var(--color-text-dark);
+}
