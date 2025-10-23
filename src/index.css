@@ -15,12 +15,12 @@
   --color-background-light: #FAFAFA;
   --color-line-light: #E0E0E0;
   /* Dark Theme */
-  --color-primary-dark: #006A4E;
-  --color-secondary-dark: #1E1E1E;
+  --color-primary-dark: #00B37A;
+  --color-secondary-dark: #101010;
   --color-accent-dark: #A7D129;
-  --color-text-dark: #F1F1F1;
-  --color-background-dark: #121212;
-  --color-line-dark: #FFFFFF;
+  --color-text-dark: #E8E8E8;
+  --color-background-dark: #0A0A0A;
+  --color-line-dark: #1F1F1F;
   /* Feedback */
   /* Success */
   --color-success-base: #2E7D32;
@@ -45,10 +45,11 @@ body {
 }
 
 .dark {
-  --color-background-light: var(--color-background-dark);
-  --color-secondary-light: var(--color-secondary-dark);
-  --color-text-light: var(--color-text-dark);
   --color-primary-light: var(--color-primary-dark);
+  --color-secondary-light: var(--color-secondary-dark);
+  --color-accent-light: var(--color-accent-dark);
+  --color-text-light: var(--color-text-dark);
+  --color-background-light: var(--color-background-dark);
   --color-line-light: var(--color-line-dark);
 }
 
