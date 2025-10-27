@@ -1,12 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Login from "./pages/karyawan/Login";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 import MainLayout from "./layouts/MainLayout";
 import DashboardAdmin from "./pages/karyawan/admin/Dashboard";
 
 const router = createBrowserRouter ([
-  { path: "/karyawan/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
+  { path: "/login", element: <Login /> },
   {
-    path: "/admin/dashboard",
+    path: "/dashboard/admin",
     element: <MainLayout />,
     children: [
       { index: true, element: <DashboardAdmin /> },
