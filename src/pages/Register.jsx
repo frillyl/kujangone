@@ -99,7 +99,7 @@ export default function Register() {
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold font-heading mb-1 text-text-light text-center">Selamat Datang</h1>
                 <p className="text-xs sm:text-sm mb-6 text-center text-text-light">
                     Sudah memiliki akun?{" "}
-                    <a href="/karyawan/login" className="font-semibold hover:underline text-primary-light">
+                    <a href="/login" className="font-semibold hover:underline text-primary-light">
                         Masuk
                     </a>
                 </p>
