@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserIcon, IdentificationIcon, EnvelopeIcon, DevicePhoneMobileIcon } from "@heroicons/react/16/solid";
 import ThemeToggle from "../components/ThemeToggle";
 
@@ -6,6 +7,7 @@ export default function Register() {
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const nav = useNavigate();
 
     const daftarPangkat = [
         {
@@ -82,8 +84,7 @@ export default function Register() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Registrasi gagal");
 
-            alert("Registrasi berhasil! Silahkan verifikasi akun Anda.");
-            setForm({ nama: "", nrp: "", pangkat: "", email: "", noHp: "" });
+            nav("/verify-account", { state: { username: form.nrp } });
         } catch (err) {
             setError(err.message);
         } finally {
