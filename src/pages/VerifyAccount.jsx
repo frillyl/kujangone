@@ -65,9 +65,13 @@ export default function VerifyAccount() {
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Gagal mengirim ulang kode");
+            if (!res.ok) {
+                if (data.remaining) setCooldown(data.remaining);
+                throw new Error(data.message || "Gagal mengirim ulang kode");
+            }
 
-            setMessage("Kode verifikasi baru telah terkirim! Silahkan cek email atau kotak pesan Anda.");
+            setMessage(data.message || "Kode verifikasi baru telah terkirim! Silahkan cek email atau kotak pesan Anda.");
+            setCooldown(data.remaining || 60);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -102,8 +106,8 @@ export default function VerifyAccount() {
                 </form>
 
                 <div className="mt-4 text-center">
-                    <button onClick={handleResend} disabled={resending} className="inline-flex items-center gap-2 text-sm text-primary-light font-semibold hover:underline">
-                        <ArrowPathIcon className={`w-4 h-4 ${resending ? "animate:spin": ""}`} />
+                    <button onClick={handleResend} disabled={resending || cooldown > 0} className={`inline-flex items-center gap-2 text-sm font-semibold transition-all duration-300 ${resending || cooldown > 0 ? "text-gray-400 cursor-not-allowed" : "text-primary-light hover:underline"}`}>
+                        <ArrowPathIcon className={`w-4 h-4 ${resending ? "animate-spin" : ""}`} />
                         {resending ? "Mengirim ulang..." : cooldown > 0 ? `Tunggu ${cooldown}s` : "Kirim Ulang Kode Verifikasi"}
                     </button>
                 </div>
