@@ -4,8 +4,10 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
     const location = useLocation();
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
     const role = user?.role || "";
+
+    if (loading) return null;
 
     const menuBase = [
         { title: "", items: [{ path: `/dashboard/${role}`, label: "Dashboard", icon: RectangleGroupIcon, roles: ["admin", "sekretaris", "bendahara", "kasir", "anggota"] }] },
@@ -15,7 +17,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 { path: "/master/anggota", label: "Anggota", icon: UserGroupIcon, roles: ["admin", "sekretaris"] },
                 { path: "/master/karyawan", label: "Karyawan", icon: UsersIcon, roles: ["admin"] },
                 { path: "/master/agen", label: "Agen", icon: BuildingStorefrontIcon, roles: ["admin", "kasir"] },
-                { path: "/master/barang", label: "Barang", icon: ArchiveBoxIcon, roles: ["admin, kasir"] },
+                { path: "/master/barang", label: "Barang", icon: ArchiveBoxIcon, roles: ["admin", "kasir"] },
             ],
         },
         {

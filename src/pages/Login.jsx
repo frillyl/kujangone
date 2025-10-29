@@ -1,15 +1,15 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { EnvelopeIcon, KeyIcon } from "@heroicons/react/16/solid";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const nav = useNavigate();
-    const { setUser } = useContext(AuthContext);
+    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,10 +25,7 @@ export default function Login() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Login gagal");
 
-            localStorage.setItem("accessToken", data.accessToken);
-            setUser(data.user);
-
-            await new Promise((r) => setTimeout(r, 100));
+            login(data.user, data.accessToken);
 
             if (data.forcePasswordChange) return nav("/change-password");
 

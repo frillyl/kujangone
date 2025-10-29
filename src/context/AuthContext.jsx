@@ -18,16 +18,12 @@ export function AuthProvider({ children }) {
         }
 
         try {
-            console.log("AccessToken saat fetch user:", token);
-
             const res = await axios.get(`${API_URL}/api/auth/me`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
                 withCredentials: true,
             });
-
-            console.log("User data:", res.data);
             setUser(res.data);
         } catch (err) {
             console.error("Gagal fetch user:", err.response?.data || err.message);
@@ -42,13 +38,19 @@ export function AuthProvider({ children }) {
         fetchUser();
     }, []);
 
+    const login = (userData, token) => {
+        localStorage.setItem("accessToken", token);
+        setUser(userData);
+        setLoading(false);
+    };
+
     const logout = () => {
         localStorage.removeItem("accessToken");
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
+        <AuthContext.Provider value={{ user, setUser, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

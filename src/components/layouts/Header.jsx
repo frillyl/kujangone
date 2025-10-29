@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { BellIcon, Bars3Icon, ChevronDownIcon, UserCircleIcon, Cog6ToothIcon, ArrowRightEndOnRectangleIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 import defaultProfile from "../../assets/images/user.png";
 import ThemeToggle from "../../components/ThemeToggle";
 
 export default function Header({ onToggleSidebar }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [user, setUser] = useState(null);
+    const nav = useNavigate();
+    const { logout } = useAuth();
 
     useEffect(() => {
         const fetchUser = async() => {
@@ -25,6 +29,11 @@ export default function Header({ onToggleSidebar }) {
 
         fetchUser();
     }, []);
+
+    const handleLogout = () => {
+        logout();
+        nav("/login");
+    };
 
     return (
         <header className="flex justify-between items-center px-4 sm:px-6 py-3 shadow-md border-b bg-primary-light text-line-light border-line-light">
@@ -73,7 +82,7 @@ export default function Header({ onToggleSidebar }) {
                                     </button>
                                 </li>
                                 <li>
-                                    <button className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-primary-light/20 hover:font-medium transition">
+                                    <button onClick={handleLogout} className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-primary-light/20 hover:font-medium transition">
                                         <ArrowRightEndOnRectangleIcon className="w-5 h-5 text-primary-light" />
                                         Logout
                                     </button>
