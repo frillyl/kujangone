@@ -1,32 +1,40 @@
 import { RectangleGroupIcon, UserGroupIcon, UsersIcon, BuildingStorefrontIcon, ArchiveBoxIcon, DocumentChartBarIcon, ShoppingCartIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useLocation, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
     const location = useLocation();
+    const { user } = useAuth();
+    const role = user?.role || "";
 
     const menuBase = [
-        { title: "", items: [{ path: "/admin/dashboard", label: "Dashboard", icon: RectangleGroupIcon }] },
+        { title: "", items: [{ path: `/dashboard/${role}`, label: "Dashboard", icon: RectangleGroupIcon, roles: ["admin", "sekretaris", "bendahara", "kasir", "anggota"] }] },
         {
             title: "Data Utama",
             items: [
-                { path: "/master/anggota", label: "Anggota", icon: UserGroupIcon },
-                { path: "/master/karyawan", label: "Karyawan", icon: UsersIcon },
-                { path: "/master/agen", label: "Agen", icon: BuildingStorefrontIcon },
-                { path: "/master/barang", label: "Barang", icon: ArchiveBoxIcon },
+                { path: "/master/anggota", label: "Anggota", icon: UserGroupIcon, roles: ["admin", "sekretaris"] },
+                { path: "/master/karyawan", label: "Karyawan", icon: UsersIcon, roles: ["admin"] },
+                { path: "/master/agen", label: "Agen", icon: BuildingStorefrontIcon, roles: ["admin", "kasir"] },
+                { path: "/master/barang", label: "Barang", icon: ArchiveBoxIcon, roles: ["admin, kasir"] },
             ],
         },
         {
             title: "Transaksi",
-            items: [{ path: "/kasir", label: "Kasir", icon: ShoppingCartIcon }],
+            items: [{ path: "/kasir", label: "Kasir", icon: ShoppingCartIcon, roles: ["admin", "kasir"] }],
         },
         {
             title: "Laporan",
             items: [
-                { path: "/laporan/penjualan", label: "Penjualan", icon: DocumentChartBarIcon },
-                { path: "/laporan/shu", label: "Sisa Hasil Usaha", icon: DocumentChartBarIcon },
+                { path: "/laporan/penjualan", label: "Penjualan", icon: DocumentChartBarIcon, roles: ["admin", "bendahara"] },
+                { path: "/laporan/shu", label: "Sisa Hasil Usaha", icon: DocumentChartBarIcon, roles: ["admin", "bendahara"] },
             ],
         },
     ];
+
+    const filteredMenu = menuBase.map((group) => ({
+        ...group,
+        items: group.items.filter((item) => item.roles.includes(role)),
+    })).filter((group) => group.items.length > 0);
 
     return (
         <>
@@ -54,7 +62,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 </div>
 
                 <nav className="flex-1 px-3 py-6 space-y-5 overflow-y-auto scrollbar-hide">
-                    {menuBase.map((group) => (
+                    {filteredMenu.map((group) => (
                         <div key={group.title}>
                             {group.title && sidebarOpen && (
                                 <p className="uppercase text-xs font-semibold text-primary-light px-2 mb-2">
