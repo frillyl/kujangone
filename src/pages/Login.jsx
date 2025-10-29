@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { EnvelopeIcon, KeyIcon } from "@heroicons/react/16/solid";
 import { useNavigate } from "react-router-dom";
-import ThemeToggle from "../components/ThemeToggle";
 import { useAuth } from "../context/AuthContext";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Login() {
     const [identifier, setIdentifier] = useState("");
