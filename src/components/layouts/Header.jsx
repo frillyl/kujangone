@@ -1,10 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { BellIcon, Bars3Icon, ChevronDownIcon, UserCircleIcon, Cog6ToothIcon, ArrowRightEndOnRectangleIcon } from "@heroicons/react/24/outline";
 import defaultProfile from "../../assets/images/user.png";
 import ThemeToggle from "../../components/ThemeToggle";
 
 export default function Header({ onToggleSidebar }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const fetchUser = async() => {
+            try {
+                const token = localStorage.getItem("accessToken");
+                if (!token) return;
+
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setUser(res.data);
+            } catch (err) {
+                console.error("Gagal memuat user:", err);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     return (
         <header className="flex justify-between items-center px-4 sm:px-6 py-3 shadow-md border-b bg-primary-light text-line-light border-line-light">
@@ -27,17 +47,17 @@ export default function Header({ onToggleSidebar }) {
                 <div className="relative">
                     <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 border-l border-line-light pl-3 sm:pl-4 hover:text-accent-light transition">
                         <img src={defaultProfile} alt="User" className="w-8 h-8 rounded-full ring-2 ring-line-light"/>
-                        <span className="hidden sm:inline font-medium text-line-light">John Doe</span>
+                        <span className="hidden sm:inline font-medium text-line-light">{user ? user.nama : "Loading"}</span>
                         <ChevronDownIcon className={`w-5 h-5 hidden sm:block transition-transform ${
                             dropdownOpen ? "rotate-180" : ""
                         }`} />
                     </button>
 
-                    {dropdownOpen && (
+                    {dropdownOpen && user && (
                         <div className="absolute right-0 mt-2 w-48 sm:w-56 bg-background-light text-gray-700 rounded-xl shadow-xl overflow-hidden z-20 animate-fade-in">
                             <div className="p-4 border-b border-gray-200">
-                                <p className="font-semibold">John Doe</p>
-                                <p className="text-sm text-gray-500">12345 / Admin</p>
+                                <p className="font-semibold">{user ? user.nama : "Loading"}</p>
+                                <p className="text-sm text-gray-500">{user.username} / {user.role}</p>
                             </div>
                             <ul className="flex flex-col">
                                 <li>
