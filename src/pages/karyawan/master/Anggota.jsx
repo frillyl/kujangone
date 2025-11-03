@@ -1,15 +1,19 @@
 import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, ArrowPathIcon, MagnifyingGlassIcon, ChevronDownIcon, CheckIcon } from "@heroicons/react/16/solid";
 import { useState, useRef, useEffect } from "react";
+import Modal from "../../../components/common/Modal";
+import PangkatSelect from "../../../components/common/PangkatSelect";
 
 export default function DataAnggota() {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterPangkat, setFilterPangkat] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
-    const [openPangkat, setOpenPangkat] = useState(false);
-    const [searchPangkat, setSearchPangkat] = useState("");
-    const [openStatus, setOpenStatus] = useState(false);
     const pangkatRef = useRef(null);
+    const [openStatus, setOpenStatus] = useState(false);
     const statusRef = useRef(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedData, setSelectedData] = useState(null);
 
     const daftarPangkat = [
         {
@@ -34,16 +38,9 @@ export default function DataAnggota() {
         },
     ];
 
-    const filteredRanks = daftarPangkat.map((d) => ({
-        kategori: d.kategori,
-        pangkatList: d.pangkatList.filter((p) =>
-            p.toLowerCase().includes(searchPangkat.toLowerCase())
-        ),
-    }));
-
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (pangkatRef.current && !pangkatRef.current.contains(e.target)) setOpenPangkat(false);
+            if (pangkatRef.current && !pangkatRef.current.contains(e.target));
             if (statusRef.current && !statusRef.current.contains(e.target)) setOpenStatus(false);
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -62,6 +59,20 @@ export default function DataAnggota() {
         const matchStatus = filterStatus ? item.status === filterStatus : true;
 
         return matchSearch && matchPangkat && matchStatus;
+    });
+
+    const [newData, setNewData] = useState({
+        nama: "",
+        nrp: "",
+        pangkat: "",
+        status: "",
+    });
+
+    const [editData, setEditData] = useState({
+        nama: "",
+        nrp: "",
+        pangkat: "",
+        status: "",
     });
 
     return (
@@ -84,57 +95,11 @@ export default function DataAnggota() {
                         <input type="text" placeholder="Cari data anggota..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-xl bg-secondary-light text-text-light border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200"/>
                     </div>
 
-                    <div className="relative md:w-48 lg:w-56" ref={pangkatRef}>
-                        <button onClick={() => setOpenPangkat(!openPangkat)} className="w-full flex justify-between items-center px-3 py-2 rounded-xl bg-secondary-light border border-line-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200">
-                            <span>{filterPangkat || "Semua Pangkat"}</span>
-                            <ChevronDownIcon className={`w-5 h-5 transition-transform duration-200 ${openPangkat ? "rotate-180" : ""}`} />
-                        </button>
-
-                        {openPangkat && (
-                            <div className="absolute z-50 mt-1 w-full max-h-64 overflow-y-auto bg-background-light border border-line-light rounded-md shadow-lg">
-                                <div className="p-2 border-b border-line-light">
-                                    <input type="text" placeholder="Cari pangkat..." value={searchPangkat} onChange={(e) => setSearchPangkat(e.target.value)} className="w-full py-1.5 px-2 border rounded-md text-sm focus:ring-2 focus:ring-primary-light" />
-                                </div>
-
-                                <div className="max-h-56 overflow-y-auto">
-                                    <div onClick={() => {
-                                            setFilterPangkat("");
-                                            setOpenPangkat(false);
-                                            setSearchPangkat("");
-                                        }} className={`flex justify-between items-center px-4 py-2 text-sm cursor-pointer transition-colors  duration-150 ${
-                                            filterPangkat === "" ? "bg-primary-light text-white" : "italic text-gray-600 hover:bg-primary-light hover:text-white"
-                                        }`}>
-                                        <span>Semua Pangkat</span>
-                                        {filterPangkat === "" && <CheckIcon className="w-4 h-4" />}
-                                    </div>
-
-                                    <div className="border-b border-line-light my-1"></div>
-
-                                    {filteredRanks.map(
-                                        ({ kategori, pangkatList }) => pangkatList.length > 0 && (
-                                            <div key={kategori}>
-                                                <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase bg-gray-100">
-                                                    {kategori}
-                                                </div>
-                                                {pangkatList.map((p) => (
-                                                    <div key={p} onClick={() => {
-                                                        setFilterPangkat(p);
-                                                        setOpenPangkat(false);
-                                                        setSearchPangkat("");
-                                                    }} className={`flex justify-between items-center px-4 py-2 text-sm cursor-pointer transition-colors duration-150 ${
-                                                            filterPangkat === p ? "bg-primary-light text-white" : "hover:bg-primary-light hover:text-white"
-                                                            }`}>
-                                                            <span>{p}</span>
-                                                            {filterPangkat === p && <CheckIcon className="w-4 h-4" />}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    <PangkatSelect
+                        daftarPangkat={daftarPangkat}
+                        value={filterPangkat}
+                        onChange={(e) => setFilterPangkat(e.target.value)}
+                    />
 
                     <div className="relative md:w-40 lg:w-48" ref={statusRef}>
                         <button onClick={() => setOpenStatus(!openStatus)} className="w-full flex justify-between items-center px-3 py-2 rounded-xl bg-secondary-light border border-line-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200">
@@ -160,7 +125,7 @@ export default function DataAnggota() {
                     </div>
                 </div>
 
-                <button className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-primary-light hover:bg-accent-light hover:text-black transition-colors duration-300 shadow-sm">
+                <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-primary-light hover:bg-accent-light hover:text-black transition-colors duration-300 shadow-sm">
                     <PlusIcon className="w-5 h-5" />
                     Tambah Data
                 </button>
@@ -193,8 +158,8 @@ export default function DataAnggota() {
                                     </td>
                                     <td className="px-3 py-3 md:px-4">
                                         <div className="flex justify-center gap-3">
-                                            <EyeIcon className="w-5 h-5 text-info-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
-                                            <PencilIcon className="w-5 h-5 text-warning-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
+                                            <EyeIcon onClick={() => { setSelectedData(item); setShowDetailModal(true); }} className="w-5 h-5 text-info-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
+                                            <PencilIcon onClick={() => { setSelectedData(item); setShowEditModal(true); setEditData(item) }} className="w-5 h-5 text-warning-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
                                             <TrashIcon className="w-5 h-5 text-danger-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
                                             <ArrowPathIcon className="w-5 h-5 text-text-light hover:rotate-180 transition-transform duration-300 cursor-pointer" />
                                         </div>
@@ -211,6 +176,104 @@ export default function DataAnggota() {
                     </tbody>
                 </table>
             </div>
+
+            <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Tambah Data Anggota">
+                <form className="space-y-3 sm:space-y-4 md:space-y-5">
+                    <div className="relative">
+                        <input type="text" placeholder="Nama Lengkap" value={newData.nama} onChange={(e) => setNewData({ ...newData, nama: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                    </div>
+                    <div className="relative">
+                        <input type="text" placeholder="NRP" value={newData.nrp} onChange={(e) => setNewData({ ...newData, nrp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                    </div>
+                    <PangkatSelect
+                        daftarPangkat={daftarPangkat}
+                        value={newData.pangkat}
+                        onChange={(e) => setNewData({ ...newData, pangkat: e.target.value })}
+                        variant="form"
+                    />
+                    <select value={newData.status} onChange={(e) => setNewData({ ...newData, status: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300">
+                        <option value="">Pilih Status</option>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Non-Aktif">Tidak Aktif</option>
+                    </select>
+                    <div className="relative">
+                        <input type="email" placeholder="Email" value={newData.email} onChange={(e) => setNewData({ ...newData, email: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                    </div>
+                    <div className="relative">
+                        <input type="text" placeholder="Nomor HP" value={newData.noHp} onChange={(e) => setNewData({ ...newData, noHp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                    </div>
+                    <div className="flex justify-end gap-2 mt-4">
+                        <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400">Batal</button>
+                        <button type="submit" className="px-4 py-2 rounded-md bg-primary-light text-white hover:bg-accent-light hover:text-black">Tambah</button>
+                    </div>
+                </form>
+            </Modal>
+
+            <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title="Detail Anggota">
+                {selectedData && (
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full border border-line-light rounded-lg overflow-hidden text-sm">
+                            <tbody>
+                                {[
+                                    ["Nama", selectedData.nama],
+                                    ["NRP", selectedData.nrp],
+                                    ["Pangkat", selectedData.pangkat],
+                                    ["Status", selectedData.status],
+                                    ["Email", selectedData.email],
+                                    ["Nomor HP", selectedData.noHp],
+                                    ["Ditambahkan Pada", selectedData.createdAt],
+                                    ["Ditambahkan Oleh", selectedData.createdBy],
+                                    ["Diperbarui Pada", selectedData.updatedAt],
+                                    ["Diperbarui Oleh", selectedData.updatedBy],
+                                ].map(([label, value], idx) => (
+                                    <tr key={label} className={`${ idx % 2 === 0 ? "bg-secondary-light" : "bg-background-light" } border-b border-line-light`}>
+                                        <td className="font-semibold px-4 py-2 w-1/3 text-left text-text-light">{label}</td>
+                                        <td className="px-4 py-2 w-2/3 text-left text-text-light">{value || "-"}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </Modal>
+
+            <Modal open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Data Anggota">
+                {selectedData && (
+                    <form className="space-y-3">
+                        <div className="relative">
+                            <input type="text" placeholder="Nama Lengkap" value={editData.nama} onChange={(e) => setEditData({ ...editData, nama: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        </div>
+                        <div className="relative">
+                            <input type="text" placeholder="NRP" value={editData.nrp} onChange={(e) => setEditData({ ...editData, nrp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        </div>
+                        <PangkatSelect
+                            daftarPangkat={daftarPangkat}
+                            value={editData.pangkat}
+                            onChange={(e) => setEditData({ ...editData, pangkat: e.target.value })}
+                            variant="form"
+                        />
+                        <select value={editData.status} onChange={(e) => setEditData({ ...editData, status: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300">
+                            <option value="">Pilih Status</option>
+                            <option value="Aktif">Aktif</option>
+                            <option value="Non-Aktif">Tidak Aktif</option>
+                        </select>
+                        <div className="relative">
+                            <input type="email" placeholder="Email" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        </div>
+                        <div className="relative">
+                            <input type="text" placeholder="Nomor HP" value={editData.noHp} onChange={(e) => setEditData({ ...editData, noHp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        </div>
+                        <div className="flex justify-end gap-2 mt-4">
+                            <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400">
+                                Batal
+                            </button>
+                            <button type="submit" className="px-4 py-2 rounded-md bg-primary-light text-white hover:bg-accent-light hover:text-black">
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                )}
+            </Modal>
         </div>
     );
 }
