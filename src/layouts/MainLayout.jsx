@@ -23,12 +23,12 @@ export default function MainLayout() {
     }, []);
 
     return (
-        <div className="flex h-screen bg-gray-100">
+        <div className="flex min-h-screen bg-gray-100">
             <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1 min-h-screen overflow-hidden">
                 <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <main id="main-content" className="flex-1 p-4 md:p-6 overflow-y-auto relative" >
+                <main id="main-content" className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 md:px-8 lg:px-10 py-6 md:py-8" >
                     <Outlet />
                 </main>
                 <Footer />

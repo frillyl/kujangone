@@ -47,7 +47,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 />
             )}
 
-            <aside className={`fixed md:relative top-0 left-0 h-full z-30 bg-background-light text-text-light shadow-xl transition-all duration-300 ease-in-out ${
+            <aside className={`fixed md:relative top-0 left-0 h-screen overflow-y-auto overflow-x-hidden z-30 bg-background-light text-text-light shadow-xl transition-all duration-300 ease-in-out ${
                     sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0 md:w-20"
                 }`}>
                 <div className="relative flex items-center h-16 px-4 bg-primary-light text-line-light md:justify-center justify-between">

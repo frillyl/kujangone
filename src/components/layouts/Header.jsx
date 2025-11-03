@@ -36,7 +36,7 @@ export default function Header({ onToggleSidebar }) {
     };
 
     return (
-        <header className="flex justify-between items-center px-4 sm:px-6 py-3 shadow-md border-b bg-primary-light text-line-light border-line-light">
+        <header className="flex justify-between items-center max-w-full px-4 sm:px-6 py-3 shadow-md border-b bg-primary-light text-line-light border-line-light">
             <div className="flex items-center gap-3">
                 <button onClick={onToggleSidebar} className="rounded-lg p-2 hover:bg-secondary-light/20 transition">
                     <Bars3Icon className="w-6 h-6 text-line-light" />

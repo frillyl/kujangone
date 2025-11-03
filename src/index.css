@@ -44,6 +44,11 @@ body {
   font-family: var(--font-body);
 }
 
+html, body, #root {
+  height: 100%;
+  overflow-x: hidden;
+}
+
 .dark {
   --color-primary-light: var(--color-primary-dark);
   --color-secondary-light: var(--color-secondary-dark);
