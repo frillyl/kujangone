@@ -1,19 +1,41 @@
 import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, ArrowPathIcon, MagnifyingGlassIcon, ChevronDownIcon, CheckIcon } from "@heroicons/react/16/solid";
 import { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import Modal from "../../../components/common/Modal";
 import PangkatSelect from "../../../components/common/PangkatSelect";
+import { formatTanggal } from "../../../../utils/formatTanggal";
 
 export default function DataAnggota() {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterPangkat, setFilterPangkat] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
-    const pangkatRef = useRef(null);
-    const [openStatus, setOpenStatus] = useState(false);
-    const statusRef = useRef(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedData, setSelectedData] = useState(null);
+    const [openStatus, setOpenStatus] = useState(false);
+    const statusRef = useRef(null);
+    const pangkatRef = useRef(null);
+
+    const [newData, setNewData] = useState({
+        nama: "",
+        nrp: "",
+        pangkat: "",
+        status: "Aktif",
+        email: "",
+        noHp: "",
+    });
+    
+    const [editData, setEditData] = useState({
+        nama: "",
+        nrp: "",
+        pangkat: "",
+        status: "",
+        email: "",
+        noHp: "",
+    });
 
     const daftarPangkat = [
         {
@@ -38,21 +60,67 @@ export default function DataAnggota() {
         },
     ];
 
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("accessToken");
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/master/anggota`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setData(res.data);
+        } catch (err) {
+            console.error("Gagal memuat data:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (pangkatRef.current && !pangkatRef.current.contains(e.target));
-            if (statusRef.current && !statusRef.current.contains(e.target)) setOpenStatus(false);
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        fetchData();
     }, []);
 
-    const data = [
-        { id: 1, nama: "Aldi", nrp: "21232506", pangkat: "Serda", status: "Aktif" },
-        { id: 2, nama: "Budi", nrp: "21458901", pangkat: "Kopda", status: "Non-Aktif" },
-        { id: 3, nama: "Caine", nrp: "21577832", pangkat: "Serda", status: "Aktif" },
-    ];
-    
+    const handleAddSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem("accessToken");
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/master/anggota`, newData, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setShowAddModal(false);
+            setNewData({ nama: "", nrp: "", pangkat: "", status: "", email: "", noHp: "" });
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Gagal menambah data");
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem("accessToken");
+            await axios.put(`${import.meta.env.VITE_API_URL}/api/master/anggota/${selectedData._id}`, editData, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setShowEditModal(false);
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Gagal memperbarui data");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm("Yakin ingin menghapus data ini?")) return;
+        try {
+            const token = localStorage.getItem("accessToken");
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/master/anggota/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Gagal menghapus data");
+        }
+    };
+
     const filteredData = data.filter((item) => {
         const matchSearch = item.nama.toLowerCase().includes(searchTerm.toLowerCase()) || item.nrp.includes(searchTerm);
         const matchPangkat = filterPangkat ? item.pangkat === filterPangkat : true;
@@ -61,19 +129,14 @@ export default function DataAnggota() {
         return matchSearch && matchPangkat && matchStatus;
     });
 
-    const [newData, setNewData] = useState({
-        nama: "",
-        nrp: "",
-        pangkat: "",
-        status: "",
-    });
-
-    const [editData, setEditData] = useState({
-        nama: "",
-        nrp: "",
-        pangkat: "",
-        status: "",
-    });
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (pangkatRef.current && !pangkatRef.current.contains(e.target));
+            if (statusRef.current && !statusRef.current.contains(e.target)) setOpenStatus(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     return (
         <div className="w-full text-text-light transition-colors duration-300 space-y-6">
@@ -144,24 +207,28 @@ export default function DataAnggota() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredData.length > 0 ? (
+                        {loading ? (
+                            <tr>
+                                <td colSpan="6" className="py-6 text-gray-500 italic">
+                                    Memuat data...
+                                </td>
+                            </tr>
+                        ) : filteredData.length > 0 ? (
                             filteredData.map((item, index) => (
-                                <tr key={item.id} className="border-b border-line-light hover:bg-background-light transition-colors duration-200">
+                                <tr key={item._id} className="border-b border-line-light hover:bg-background-light transition-colors duration-200">
                                     <td className="px-3 py-3 md:px-4">{index + 1}.</td>
                                     <td className="px-3 py-3 md:px-4 font-medium">{item.nama}</td>
                                     <td className="px-3 py-3 md:px-4">{item.nrp}</td>
                                     <td className="px-3 py-3 md:px-4">{item.pangkat}</td>
-                                    <td className={`px-3 py-3 md:px-4 ${
-                                            item.status === "Aktif" ? "text-success-base font-semibold" : "text-danger-base"
-                                        }`}>
+                                    <td className={`px-3 py-3 md:px-4 ${item.status === "Aktif" ? "text-success-base font-semibold" : "text-danger-base"}`}>
                                         {item.status}
                                     </td>
                                     <td className="px-3 py-3 md:px-4">
                                         <div className="flex justify-center gap-3">
                                             <EyeIcon onClick={() => { setSelectedData(item); setShowDetailModal(true); }} className="w-5 h-5 text-info-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
-                                            <PencilIcon onClick={() => { setSelectedData(item); setShowEditModal(true); setEditData(item) }} className="w-5 h-5 text-warning-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
-                                            <TrashIcon className="w-5 h-5 text-danger-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
-                                            <ArrowPathIcon className="w-5 h-5 text-text-light hover:rotate-180 transition-transform duration-300 cursor-pointer" />
+                                            <PencilIcon onClick={() => { setSelectedData(item); setEditData(item); setShowEditModal(true); }} className="w-5 h-5 text-warning-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
+                                            <TrashIcon onClick={() => handleDelete(item._id)} className="w-5 h-5 text-danger-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
+                                            <ArrowPathIcon onClick={() => fetchData()} className="w-5 h-5 text-text-light hover:rotate-180 transition-transform duration-300 cursor-pointer" />
                                         </div>
                                     </td>
                                 </tr>
@@ -178,7 +245,7 @@ export default function DataAnggota() {
             </div>
 
             <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Tambah Data Anggota">
-                <form className="space-y-3 sm:space-y-4 md:space-y-5">
+                <form className="space-y-3 sm:space-y-4 md:space-y-5" onSubmit={handleAddSubmit}>
                     <div className="relative">
                         <input type="text" placeholder="Nama Lengkap" value={newData.nama} onChange={(e) => setNewData({ ...newData, nama: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                     </div>
@@ -191,11 +258,6 @@ export default function DataAnggota() {
                         onChange={(e) => setNewData({ ...newData, pangkat: e.target.value })}
                         variant="form"
                     />
-                    <select value={newData.status} onChange={(e) => setNewData({ ...newData, status: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300">
-                        <option value="">Pilih Status</option>
-                        <option value="Aktif">Aktif</option>
-                        <option value="Non-Aktif">Tidak Aktif</option>
-                    </select>
                     <div className="relative">
                         <input type="email" placeholder="Email" value={newData.email} onChange={(e) => setNewData({ ...newData, email: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                     </div>
@@ -221,10 +283,10 @@ export default function DataAnggota() {
                                     ["Status", selectedData.status],
                                     ["Email", selectedData.email],
                                     ["Nomor HP", selectedData.noHp],
-                                    ["Ditambahkan Pada", selectedData.createdAt],
-                                    ["Ditambahkan Oleh", selectedData.createdBy],
-                                    ["Diperbarui Pada", selectedData.updatedAt],
-                                    ["Diperbarui Oleh", selectedData.updatedBy],
+                                    ["Ditambahkan Pada", formatTanggal(selectedData.createdAt)],
+                                    ["Ditambahkan Oleh", selectedData.createdBy?.nama || "-"],
+                                    ["Diperbarui Pada", formatTanggal(selectedData.updatedAt)],
+                                    ["Diperbarui Oleh", selectedData.updatedBy?.nama || "-"],
                                 ].map(([label, value], idx) => (
                                     <tr key={label} className={`${ idx % 2 === 0 ? "bg-secondary-light" : "bg-background-light" } border-b border-line-light`}>
                                         <td className="font-semibold px-4 py-2 w-1/3 text-left text-text-light">{label}</td>
@@ -239,7 +301,7 @@ export default function DataAnggota() {
 
             <Modal open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Data Anggota">
                 {selectedData && (
-                    <form className="space-y-3">
+                    <form className="space-y-3" onSubmit={handleEditSubmit}>
                         <div className="relative">
                             <input type="text" placeholder="Nama Lengkap" value={editData.nama} onChange={(e) => setEditData({ ...editData, nama: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                         </div>
@@ -255,7 +317,7 @@ export default function DataAnggota() {
                         <select value={editData.status} onChange={(e) => setEditData({ ...editData, status: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300">
                             <option value="">Pilih Status</option>
                             <option value="Aktif">Aktif</option>
-                            <option value="Non-Aktif">Tidak Aktif</option>
+                            <option value="Non-Aktif">Non-Aktif</option>
                         </select>
                         <div className="relative">
                             <input type="email" placeholder="Email" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
