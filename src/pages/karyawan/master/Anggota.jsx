@@ -121,6 +121,21 @@ export default function DataAnggota() {
         }
     };
 
+    const handleResetPassword = async (id) => {
+        if (!confirm("Yakin ingin mereset password anggota ini?")) return;
+        try {
+            const token = localStorage.getItem("accessToken");
+            const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/master/anggota/reset-password/${id}`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(res.data.message);
+            fetchData();
+        } catch (err) {
+            alert(err.response?.data?.message || "Gagal mereset password");
+        }
+    };
+
     const filteredData = data.filter((item) => {
         const matchSearch = item.nama.toLowerCase().includes(searchTerm.toLowerCase()) || item.nrp.includes(searchTerm);
         const matchPangkat = filterPangkat ? item.pangkat === filterPangkat : true;
@@ -228,7 +243,7 @@ export default function DataAnggota() {
                                             <EyeIcon onClick={() => { setSelectedData(item); setShowDetailModal(true); }} className="w-5 h-5 text-info-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
                                             <PencilIcon onClick={() => { setSelectedData(item); setEditData(item); setShowEditModal(true); }} className="w-5 h-5 text-warning-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
                                             <TrashIcon onClick={() => handleDelete(item._id)} className="w-5 h-5 text-danger-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
-                                            <ArrowPathIcon onClick={() => fetchData()} className="w-5 h-5 text-text-light hover:rotate-180 transition-transform duration-300 cursor-pointer" />
+                                            <ArrowPathIcon onClick={() => handleResetPassword(item._id)} className="w-5 h-5 text-text-light hover:rotate-180 transition-transform duration-300 cursor-pointer" />
                                         </div>
                                     </td>
                                 </tr>
