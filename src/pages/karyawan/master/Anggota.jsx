@@ -1,9 +1,25 @@
 import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, ArrowPathIcon, MagnifyingGlassIcon, ChevronDownIcon, CheckIcon } from "@heroicons/react/16/solid";
 import { useState, useRef, useEffect } from "react";
+import { formatTanggal } from "../../../../utils/formatTanggal";
+import { showToast, showConfirmDialog } from "../../../../utils/toastHelper";
 import axios from "axios";
+import Swal from "sweetalert2";
 import Modal from "../../../components/common/Modal";
 import PangkatSelect from "../../../components/common/PangkatSelect";
-import { formatTanggal } from "../../../../utils/formatTanggal";
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+    background: "#1e293b",
+    color: "#f1f5f9",
+    didOpen: (toast) => {
+        toast.addEventListener("mouseenter", Swal.stopTimer);
+        toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+});
 
 export default function DataAnggota() {
     const [data, setData] = useState([]);
@@ -89,8 +105,10 @@ export default function DataAnggota() {
             setShowAddModal(false);
             setNewData({ nama: "", nrp: "", pangkat: "", status: "", email: "", noHp: "" });
             fetchData();
+
+            showToast("success", "Data anggota berhasil ditambahkan");
         } catch (err) {
-            alert(err.response?.data?.message || "Gagal menambah data");
+            showToast("error", err.response?.data?.message || "Gagal menambah data");
         }
     };
 
@@ -103,36 +121,54 @@ export default function DataAnggota() {
             });
             setShowEditModal(false);
             fetchData();
+
+            showToast("success", "Data anggota berhasil diperbarui");
         } catch (err) {
-            alert(err.response?.data?.message || "Gagal memperbarui data");
+            showToast("error", err.response?.data?.message || "Gagal memperbarui data");
         }
     };
 
     const handleDelete = async (id) => {
-        if (!confirm("Yakin ingin menghapus data ini?")) return;
+        const confirm = await showConfirmDialog(
+            "Hapus Data?",
+            "Data anggota akan dihapus secara permanen.",
+            "Ya, hapus!"
+        );
+        if (!confirm) return;
+
         try {
             const token = localStorage.getItem("accessToken");
             await axios.delete(`${import.meta.env.VITE_API_URL}/api/master/anggota/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             fetchData();
+
+            showToast("success", "Data anggota berhasil dihapus");
         } catch (err) {
-            alert(err.response?.data?.message || "Gagal menghapus data");
+            showToast("error", err.response?.data?.message || "Gagal menghapus data");
         }
     };
 
     const handleResetPassword = async (id) => {
-        if (!confirm("Yakin ingin mereset password anggota ini?")) return;
+        const confirm = await showConfirmDialog(
+            "Reset Password?",
+            "Password anggota akan direset. Lanjutkan?",
+            "Ya, reset!"
+        );
+        if (!confirm) return;
+
         try {
             const token = localStorage.getItem("accessToken");
-            const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/master/anggota/reset-password/${id}`,
+            await axios.put(`${import.meta.env.VITE_API_URL}/api/master/anggota/reset-password/${id}`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            alert(res.data.message);
+                
+            showToast("success", "Password berhasil direset");
+
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.message || "Gagal mereset password");
+            showToast("error", err.response?.data?.message || "Gagal mereset password");
         }
     };
 
@@ -260,12 +296,10 @@ export default function DataAnggota() {
             </div>
 
             <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Tambah Data Anggota">
-                <form className="space-y-3 sm:space-y-4 md:space-y-5" onSubmit={handleAddSubmit}>
-                    <div className="relative">
-                        <input type="text" placeholder="Nama Lengkap" value={newData.nama} onChange={(e) => setNewData({ ...newData, nama: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
-                    </div>
-                    <div className="relative">
-                        <input type="text" placeholder="NRP" value={newData.nrp} onChange={(e) => setNewData({ ...newData, nrp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                <form className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6" onSubmit={handleAddSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <input type="text" placeholder="Nama Lengkap" value={newData.nama} onChange={(e) => setNewData({ ...newData, nama: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        <input type="text" placeholder="NRP" value={newData.nrp} onChange={(e) => setNewData({ ...newData, nrp: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                     </div>
                     <PangkatSelect
                         daftarPangkat={daftarPangkat}
@@ -273,15 +307,13 @@ export default function DataAnggota() {
                         onChange={(e) => setNewData({ ...newData, pangkat: e.target.value })}
                         variant="form"
                     />
-                    <div className="relative">
-                        <input type="email" placeholder="Email" value={newData.email} onChange={(e) => setNewData({ ...newData, email: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <input type="email" placeholder="Email" value={newData.email} onChange={(e) => setNewData({ ...newData, email: e.target.value })} className="w-full pl-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        <input type="text" placeholder="Nomor HP" value={newData.noHp} onChange={(e) => setNewData({ ...newData, noHp: e.target.value })} className="w-full pl-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                     </div>
-                    <div className="relative">
-                        <input type="text" placeholder="Nomor HP" value={newData.noHp} onChange={(e) => setNewData({ ...newData, noHp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
-                    </div>
-                    <div className="flex justify-end gap-2 mt-4">
-                        <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400">Batal</button>
-                        <button type="submit" className="px-4 py-2 rounded-md bg-primary-light text-white hover:bg-accent-light hover:text-black">Tambah</button>
+                    <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+                        <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 w-full sm:w-auto">Batal</button>
+                        <button type="submit" className="px-4 py-2 rounded-md bg-primary-light text-white hover:bg-accent-light hover:text-black w-full sm:w-auto">Tambah</button>
                     </div>
                 </form>
             </Modal>
@@ -289,7 +321,7 @@ export default function DataAnggota() {
             <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title="Detail Anggota">
                 {selectedData && (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full border border-line-light rounded-lg overflow-hidden text-sm">
+                        <table className="min-w-full border border-line-light rounded-lg overflow-hidden text-xs xs:text-sm md:text-base">
                             <tbody>
                                 {[
                                     ["Nama", selectedData.nama],
@@ -304,8 +336,8 @@ export default function DataAnggota() {
                                     ["Diperbarui Oleh", selectedData.updatedBy?.nama || "-"],
                                 ].map(([label, value], idx) => (
                                     <tr key={label} className={`${ idx % 2 === 0 ? "bg-secondary-light" : "bg-background-light" } border-b border-line-light`}>
-                                        <td className="font-semibold px-4 py-2 w-1/3 text-left text-text-light">{label}</td>
-                                        <td className="px-4 py-2 w-2/3 text-left text-text-light">{value || "-"}</td>
+                                        <td className="font-semibold px-3 sm:px-4 py-2 w-1/3 text-left text-text-light whitespace-nowrap">{label}</td>
+                                        <td className="px-3 sm:px-4 py-2 w-2/3 text-left text-text-light wrap-break-words">{value || "-"}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -316,35 +348,33 @@ export default function DataAnggota() {
 
             <Modal open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Data Anggota">
                 {selectedData && (
-                    <form className="space-y-3" onSubmit={handleEditSubmit}>
-                        <div className="relative">
-                            <input type="text" placeholder="Nama Lengkap" value={editData.nama} onChange={(e) => setEditData({ ...editData, nama: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                    <form className="space-y-3 sm:space-y-4 md:space-y-5" onSubmit={handleEditSubmit}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                            <input type="text" placeholder="Nama Lengkap" value={editData.nama} onChange={(e) => setEditData({ ...editData, nama: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                            <input type="text" placeholder="NRP" value={editData.nrp} onChange={(e) => setEditData({ ...editData, nrp: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                         </div>
-                        <div className="relative">
-                            <input type="text" placeholder="NRP" value={editData.nrp} onChange={(e) => setEditData({ ...editData, nrp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                            <PangkatSelect
+                                daftarPangkat={daftarPangkat}
+                                value={editData.pangkat}
+                                onChange={(e) => setEditData({ ...editData, pangkat: e.target.value })}
+                                variant="form"
+                            />
+                            <select value={editData.status} onChange={(e) => setEditData({ ...editData, status: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300">
+                                <option value="">Pilih Status</option>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Non-Aktif">Non-Aktif</option>
+                            </select>
                         </div>
-                        <PangkatSelect
-                            daftarPangkat={daftarPangkat}
-                            value={editData.pangkat}
-                            onChange={(e) => setEditData({ ...editData, pangkat: e.target.value })}
-                            variant="form"
-                        />
-                        <select value={editData.status} onChange={(e) => setEditData({ ...editData, status: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300">
-                            <option value="">Pilih Status</option>
-                            <option value="Aktif">Aktif</option>
-                            <option value="Non-Aktif">Non-Aktif</option>
-                        </select>
-                        <div className="relative">
-                            <input type="email" placeholder="Email" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                            <input type="email" placeholder="Email" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
+                            <input type="text" placeholder="Nomor HP" value={editData.noHp} onChange={(e) => setEditData({ ...editData, noHp: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                         </div>
-                        <div className="relative">
-                            <input type="text" placeholder="Nomor HP" value={editData.noHp} onChange={(e) => setEditData({ ...editData, noHp: e.target.value })} className="w-full pl-3 pr-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
-                        </div>
-                        <div className="flex justify-end gap-2 mt-4">
-                            <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400">
+                        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+                            <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 w-full sm:w-auto">
                                 Batal
                             </button>
-                            <button type="submit" className="px-4 py-2 rounded-md bg-primary-light text-white hover:bg-accent-light hover:text-black">
+                            <button type="submit" className="px-4 py-2 rounded-md bg-primary-light text-white hover:bg-accent-light hover:text-black w-full sm:w-auto">
                                 Simpan
                             </button>
                         </div>

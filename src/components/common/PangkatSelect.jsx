@@ -29,7 +29,7 @@ export default function PangkatSelect({ daftarPangkat, value, onChange, variant 
             : "px-3 py-2.5 md:py-3 rounded-md bg-background-light";
 
     return (
-        <div className={`relative ${variant === "form" ? "w-full" : "w-full md:w-48"}`} ref={dropdownRef}>
+        <div className={`relative ${variant === "form" ? "w-full" : "w-full sm:w-64 md:w-72 lg:w-80"}`} ref={dropdownRef}>
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
