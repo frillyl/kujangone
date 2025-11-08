@@ -1,4 +1,4 @@
-import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, ArrowPathIcon, MagnifyingGlassIcon, ChevronDownIcon, CheckIcon } from "@heroicons/react/16/solid";
+import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, ArrowPathIcon, MagnifyingGlassIcon, ChevronDownIcon, CheckIcon, UserPlusIcon } from "@heroicons/react/16/solid";
 import { useState, useRef, useEffect } from "react";
 import { formatTanggal } from "../../../../utils/formatTanggal";
 import { showToast, showConfirmDialog } from "../../../../utils/toastHelper";
@@ -6,20 +6,6 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Modal from "../../../components/common/Modal";
 import PangkatSelect from "../../../components/common/PangkatSelect";
-
-const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 2500,
-    timerProgressBar: true,
-    background: "#1e293b",
-    color: "#f1f5f9",
-    didOpen: (toast) => {
-        toast.addEventListener("mouseenter", Swal.stopTimer);
-        toast.addEventListener("mouseleave", Swal.resumeTimer);
-    },
-});
 
 export default function DataAnggota() {
     const [data, setData] = useState([]);
@@ -189,6 +175,40 @@ export default function DataAnggota() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const handleAssignKaryawan = async (id) => {
+        const { value: posisi } = await Swal.fire({
+            title: "Pilih Posisi Karyawan",
+            input: "select",
+            inputOptions: {
+                Admin: "Admin",
+                Sekretaris: "Sekretaris",
+                Bendahara: "Bendahara",
+                Kasir: "Kasir",
+            },
+            inputPlaceholder: "Pilih Posisi",
+            showCancelButton: true,
+            confirmButtonText: "Assign",
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#2563EB",
+        });
+
+        if (!posisi) return;
+
+        try {
+            const token = localStorage.getItem("accessToken");
+            await axios.post(
+                `${import.meta.env.VITE_API_URL}/api/master/anggota/assign-karyawan/${id}`,
+                { posisi },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            showToast("success", `Anggota berhasil dijadikan ${posisi}.`);
+            fetchData();
+        } catch (err) {
+            showToast("error", err.response?.data?.message || "Gagal assign anggota.");
+        }
+    };
+
     return (
         <div className="w-full text-text-light transition-colors duration-300 space-y-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 md:mb-8">
@@ -276,6 +296,7 @@ export default function DataAnggota() {
                                     </td>
                                     <td className="px-3 py-3 md:px-4">
                                         <div className="flex justify-center gap-3">
+                                            <UserPlusIcon onClick={() => handleAssignKaryawan(item._id)} className="w-5 h-5 text-text-light hover:scale-110 transition-transform duration-300 cursor-pointer" />
                                             <EyeIcon onClick={() => { setSelectedData(item); setShowDetailModal(true); }} className="w-5 h-5 text-info-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
                                             <PencilIcon onClick={() => { setSelectedData(item); setEditData(item); setShowEditModal(true); }} className="w-5 h-5 text-warning-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
                                             <TrashIcon onClick={() => handleDelete(item._id)} className="w-5 h-5 text-danger-base hover:scale-110 transition-transform duration-200 cursor-pointer" />
