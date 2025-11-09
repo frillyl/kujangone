@@ -89,7 +89,7 @@ export default function DataAnggota() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setShowAddModal(false);
-            setNewData({ nama: "", nrp: "", pangkat: "", status: "", email: "", noHp: "" });
+            setNewData({ nama: "", nrp: "", pangkat: "", status: "Aktif", email: "", noHp: "" });
             fetchData();
 
             showToast("success", "Data anggota berhasil ditambahkan");
