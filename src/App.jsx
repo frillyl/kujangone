@@ -7,6 +7,7 @@ import MainLayout from "./layouts/MainLayout";
 import DashboardAdmin from "./pages/karyawan/admin/Dashboard";
 import DashboardAnggota from "./pages/anggota/Dashboard";
 import DataAnggota from "./pages/karyawan/master/Anggota";
+import DataKaryawan from "./pages/karyawan/master/Karyawan";
 
 const router = createBrowserRouter ([
   { path: "/register", element: <Register /> },
@@ -32,6 +33,13 @@ const router = createBrowserRouter ([
     element: <MainLayout />,
     children: [
       { index: true, element: <DataAnggota /> },
+    ],
+  },
+  {
+    path: "/master/karyawan",
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <DataKaryawan /> },
     ],
   },
 ]);
