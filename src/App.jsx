@@ -8,6 +8,7 @@ import DashboardAdmin from "./pages/karyawan/admin/Dashboard";
 import DashboardAnggota from "./pages/anggota/Dashboard";
 import DataAnggota from "./pages/karyawan/master/Anggota";
 import DataKaryawan from "./pages/karyawan/master/Karyawan";
+import DataAgen from "./pages/karyawan/master/Agen";
 
 const router = createBrowserRouter ([
   { path: "/register", element: <Register /> },
@@ -42,6 +43,13 @@ const router = createBrowserRouter ([
       { index: true, element: <DataKaryawan /> },
     ],
   },
+  {
+    path: "/master/agen",
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <DataAgen /> }
+    ]
+  }
 ]);
 
 export default function App() {
