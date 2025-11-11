@@ -352,9 +352,9 @@ export default function DataAnggota() {
                                     ["Email", selectedData.email],
                                     ["Nomor HP", selectedData.noHp],
                                     ["Ditambahkan Pada", formatTanggal(selectedData.createdAt)],
-                                    ["Ditambahkan Oleh", selectedData.createdBy?.nama || "-"],
+                                    ["Ditambahkan Oleh", selectedData.createdBy?.nama || selectedData.createdBy?.refId?.nama || "-"],
                                     ["Diperbarui Pada", formatTanggal(selectedData.updatedAt)],
-                                    ["Diperbarui Oleh", selectedData.updatedBy?.nama || "-"],
+                                    ["Diperbarui Oleh", selectedData.updatedBy?.nama || selectedData.updatedBy?.refId?.nama || "-"],
                                 ].map(([label, value], idx) => (
                                     <tr key={label} className={`${ idx % 2 === 0 ? "bg-secondary-light" : "bg-background-light" } border-b border-line-light`}>
                                         <td className="font-semibold px-3 sm:px-4 py-2 w-1/3 text-left text-text-light whitespace-nowrap">{label}</td>
