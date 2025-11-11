@@ -100,7 +100,6 @@ export default function DataKaryawan() {
 
     return (
         <div className="w-full text-text-light transition-colors duration-300 space-y-6">
-            {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 md:mb-8">
                 <h1 className="text-2xl md:text-3xl font-bold text-primary-light font-heading text-center lg:text-left">
                     Data Karyawan
@@ -112,7 +111,6 @@ export default function DataKaryawan() {
                 </div>
             </div>
 
-            {/* Filter & Pencarian */}
             <div className="flex flex-col xl:flex-row justify-between items-center gap-3 mb-5">
                 <div className="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
                     <div className="relative w-full md:w-64 lg:w-72">
@@ -134,7 +132,6 @@ export default function DataKaryawan() {
                 </div>
             </div>
 
-            {/* Tabel Data */}
             <div className="w-full overflow-x-auto rounded-2xl border border-line-light bg-secondary-light shadow-md max-w-full">
                 <table className="min-w-full text-sm md:text-base text-center">
                     <thead className="bg-primary-light text-white">
