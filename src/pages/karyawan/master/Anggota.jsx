@@ -6,6 +6,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Modal from "../../../components/common/Modal";
 import PangkatSelect from "../../../components/common/PangkatSelect";
+import SortableColumn from "../../../components/table/SortableColumn";
 
 export default function DataAnggota() {
     const [data, setData] = useState([]);
@@ -13,6 +14,10 @@ export default function DataAnggota() {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterPangkat, setFilterPangkat] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: null,
+    });
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -209,6 +214,34 @@ export default function DataAnggota() {
         }
     };
 
+    const sortedData = [...filteredData].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        const fieldA = a[sortConfig.key]?.toString().toLowerCase();
+        const fieldB = b[sortConfig.key]?.toString().toLowerCase();
+
+        if (fieldA < fieldB) return sortConfig.direction === "asc" ? -1 : 1;
+        if (fieldA > fieldB) return sortConfig.direction === "asc" ? -1 : 1;
+
+        return 0;
+    });
+
+    const handleSort = (key) => {
+        setSortConfig((prev) => {
+            if (prev.key === key) {
+                return {
+                    key,
+                    direction: prev.direction === "asc" ? "desc" : "asc",
+                };
+            }
+            return { key, direction: "asc" };
+        });
+    };
+
+    const resetSort = () => {
+        setSortConfig({ key: null, direction: null });
+    }
+
     return (
         <div className="w-full text-text-light transition-colors duration-300 space-y-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 md:mb-8">
@@ -257,6 +290,11 @@ export default function DataAnggota() {
                             </div>
                         )}
                     </div>
+
+                    <button onClick={resetSort} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-text-light transition">
+                        <ArrowPathIcon className="w-5 h-5" />
+                        Reset Sort
+                    </button>
                 </div>
 
                 <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-primary-light hover:bg-accent-light hover:text-black transition-colors duration-300 shadow-sm">
@@ -270,8 +308,8 @@ export default function DataAnggota() {
                     <thead className="bg-primary-light text-white">
                         <tr>
                             <th className="px-3 py-3 md:px-4 font-semibold">No.</th>
-                            <th className="px-3 py-3 md:px-4 font-semibold">Nama</th>
-                            <th className="px-3 py-3 md:px-4 font-semibold">NRP</th>
+                            <SortableColumn label="Nama" columnKey="nama" sortConfig={sortConfig} onSort={handleSort} />
+                            <SortableColumn label="NRP" columnKey="nrp" sortConfig={sortConfig} onSort={handleSort} />
                             <th className="px-3 py-3 md:px-4 font-semibold">Pangkat</th>
                             <th className="px-3 py-3 md:px-4 font-semibold">Status</th>
                             <th className="px-3 py-3 md:px-4 font-semibold rounded-tr-2xl">Aksi</th>
@@ -284,8 +322,8 @@ export default function DataAnggota() {
                                     Memuat data...
                                 </td>
                             </tr>
-                        ) : filteredData.length > 0 ? (
-                            filteredData.map((item, index) => (
+                        ) : sortedData.length > 0 ? (
+                            sortedData.map((item, index) => (
                                 <tr key={item._id} className="border-b border-line-light hover:bg-background-light transition-colors duration-200">
                                     <td className="px-3 py-3 md:px-4">{index + 1}.</td>
                                     <td className="px-3 py-3 md:px-4 font-medium">{item.nama}</td>
