@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon, EyeIcon, PencilIcon, PlusIcon, TrashIcon, ChevronUpDownIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/16/solid";
+import { MagnifyingGlassIcon, EyeIcon, PencilIcon, PlusIcon, TrashIcon, ArrowPathIcon } from "@heroicons/react/16/solid";
 import { useState, useEffect } from "react";
 import { formatTanggal } from "../../../../utils/formatTanggal";
 import { showConfirmDialog, showToast } from "../../../../utils/toastHelper";
