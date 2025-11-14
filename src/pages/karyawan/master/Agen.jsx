@@ -1,14 +1,19 @@
-import { MagnifyingGlassIcon, EyeIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/16/solid";
+import { MagnifyingGlassIcon, EyeIcon, PencilIcon, PlusIcon, TrashIcon, ChevronUpDownIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/16/solid";
 import { useState, useEffect } from "react";
 import { formatTanggal } from "../../../../utils/formatTanggal";
+import { showConfirmDialog, showToast } from "../../../../utils/toastHelper";
 import Modal from "../../../components/common/Modal";
 import axios from "axios";
-import { showConfirmDialog, showToast } from "../../../../utils/toastHelper";
+import SortableColumn from "../../../components/table/SortableColumn";
 
 export default function DataAgen() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: null,
+    });
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -107,6 +112,33 @@ export default function DataAgen() {
         return matchSearch;
     })
 
+    const sortedData = [...filteredData].sort((a,b ) => {
+        if (!sortConfig.key) return 0;
+
+        const fieldA = a[sortConfig.key]?.toString().toLowerCase();
+        const fieldB = b[sortConfig.key]?.toString().toLowerCase();
+
+        if (fieldA < fieldB) return sortConfig.direction === "asc" ? -1 : 1;
+        if (fieldA > fieldB) return sortConfig.direction === "asc" ? -1 : 1;
+        return 0;
+    });
+
+    const handleSort = (key) => {
+        setSortConfig((prev) => {
+            if (prev.key === key) {
+                return {
+                    key,
+                    direction: prev.direction === "asc" ? "desc" : "asc",
+                };
+            }
+            return { key, direction: "asc" };
+        });
+    };
+
+    const resetSort = () => {
+        setSortConfig({ key: null, direction: null });
+    };
+
     return (
         <div className="w-full text-text-light transition-colors duration-300 space-y-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 md:mb-8">
@@ -126,6 +158,10 @@ export default function DataAgen() {
                         <MagnifyingGlassIcon className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
                         <input type="text" placeholder="Cari data agen..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-xl bg-secondary-light text-text-light border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200" />
                     </div>
+                    <button onClick={resetSort} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-text-light transition">
+                        <ArrowPathIcon className="w-5 h-5" />
+                        Reset Sort
+                    </button>
                 </div>
 
                 <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-primary-light hover:bg-accent-light hover:text-black transition-colors duration-300 shadow-sm">
@@ -139,8 +175,8 @@ export default function DataAgen() {
                     <thead className="bg-primary-light text-white">
                         <tr>
                             <th className="px-3 py-3 md:px-4 font-semibold">No.</th>
-                            <th className="px-3 py-3 md:px-4 font-semibold">Kode Agen</th>
-                            <th className="px-3 py-3 md:px-4 font-semibold">Nama Agen</th>
+                            <SortableColumn label="Kode Agen" columnKey="kode" sortConfig={sortConfig} onSort={handleSort} />
+                            <SortableColumn label="Nama Agen" columnKey="nama" sortConfig={sortConfig} onSort={handleSort} />
                             <th className="px-3 py-3 md:px-4 font-semibold">Alamat</th>
                             <th className="px-3 py-3 md:px-4 font-semibold rounded-tr-2xl">Aksi</th>
                         </tr>
@@ -152,8 +188,8 @@ export default function DataAgen() {
                                     Memuat data...
                                 </td>
                             </tr>
-                        ) : filteredData.length > 0 ? (
-                            filteredData.map((item, index) => (
+                        ) : sortedData.length > 0 ? (
+                            sortedData.map((item, index) => (
                                 <tr key={item._id} className="border-b border-line-light transition-colors duration-200">
                                     <td className="px-3 py-3 md:px-4">{index + 1}.</td>
                                     <td className="px-3 py-3 md:px-4">{item.kode}</td>
@@ -194,10 +230,7 @@ export default function DataAgen() {
 
             <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Tambah Data Agen">
                 <form className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6" onSubmit={handleAddSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                        <input type="text" placeholder="Kode Agen" value={newData.kode} onChange={(e) => setNewData({ ...newData, kode: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
                         <input type="text" placeholder="Nama Agen" value={newData.nama} onChange={(e) => setNewData({ ...newData, nama: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
-                    </div>
                     <textarea placeholder="Alamat" value={newData.alamat} onChange={(e) => setNewData({ ...newData, alamat: e.target.value })} className="w-full px-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300"></textarea>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                         <input type="email" placeholder="Email" value={newData.email} onChange={(e) => setNewData({ ...newData, email: e.target.value })} className="w-full pl-3 py-2.5 md:py-3 rounded-md border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-300" />
