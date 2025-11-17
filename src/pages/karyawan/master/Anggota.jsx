@@ -1,4 +1,4 @@
-import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, ArrowPathIcon, MagnifyingGlassIcon, ChevronDownIcon, CheckIcon, UserPlusIcon } from "@heroicons/react/16/solid";
+import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, ArrowPathIcon, MagnifyingGlassIcon, ChevronDownIcon, CheckIcon, UserPlusIcon, ArrowDownTrayIcon } from "@heroicons/react/16/solid";
 import { useState, useRef, useEffect } from "react";
 import { formatTanggal } from "../../../../utils/formatTanggal";
 import { showToast, showConfirmDialog } from "../../../../utils/toastHelper";
@@ -255,11 +255,11 @@ export default function DataAnggota() {
                 </div>
             </div>
 
-            <div className="flex flex-col xl:flex-row justify-between items-center gap-3 mb-5">
-                <div className="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
-                    <div className="relative w-full md:w-64 lg:w-72">
+            <div className="w-full bg-background-light p-4 rounded-xl border border-line-light space-y-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                    <div className="relative">
                         <MagnifyingGlassIcon className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
-                        <input type="text" placeholder="Cari data anggota..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-xl bg-secondary-light text-text-light border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200"/>
+                        <input type="text" placeholder="Cari data anggota..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-xl bg-background-light text-text-light border border-line-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200"/>
                     </div>
 
                     <PangkatSelect
@@ -268,8 +268,8 @@ export default function DataAnggota() {
                         onChange={(e) => setFilterPangkat(e.target.value)}
                     />
 
-                    <div className="relative md:w-40 lg:w-48" ref={statusRef}>
-                        <button onClick={() => setOpenStatus(!openStatus)} className="w-full flex justify-between items-center px-3 py-2 rounded-xl bg-secondary-light border border-line-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200">
+                    <div className="relative" ref={statusRef}>
+                        <button onClick={() => setOpenStatus(!openStatus)} className="w-full flex justify-between items-center px-3 py-2 rounded-xl bg-background-light border border-line-light text-text-light focus:outline-none focus:ring-2 focus:ring-primary-light transition-all duration-200">
                             <span>{filterStatus || "Semua Status"}</span>
                             <ChevronDownIcon className={`w-5 h-5 transition-transform duration-200 ${openStatus ? "rotate-180" : ""}`} />
                         </button>
@@ -291,15 +291,22 @@ export default function DataAnggota() {
                         )}
                     </div>
 
-                    <button onClick={resetSort} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-text-light transition">
+                    <button onClick={resetSort} className="flex w-full sm:w-auto items-center gap-2 px-4 py-2 justify-center rounded-xl bg-gray-200 hover:bg-gray-300 text-text-light transition">
                         <ArrowPathIcon className="w-5 h-5" />
                         Reset Sort
                     </button>
                 </div>
+            </div>
 
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
                 <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-primary-light hover:bg-accent-light hover:text-black transition-colors duration-300 shadow-sm">
                     <PlusIcon className="w-5 h-5" />
                     Tambah Data
+                </button>
+
+                <button className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-success-base hover:bg-success-dark transition-colors duration-300 shadow-sm">
+                    <ArrowDownTrayIcon className="w-5 h-5" />
+                    Import Data
                 </button>
             </div>
 
