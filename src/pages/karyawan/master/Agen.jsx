@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon, EyeIcon, PencilIcon, PlusIcon, TrashIcon, ArrowPathIcon } from "@heroicons/react/16/solid";
+import { MagnifyingGlassIcon, EyeIcon, PencilIcon, PlusIcon, TrashIcon, ArrowPathIcon, ArrowDownTrayIcon } from "@heroicons/react/16/solid";
 import { useState, useEffect } from "react";
 import { formatTanggal } from "../../../../utils/formatTanggal";
 import { showConfirmDialog, showToast } from "../../../../utils/toastHelper";
@@ -152,7 +152,7 @@ export default function DataAgen() {
                 </div>
             </div>
 
-            <div className="flex flex-col xl:flex-row justify-between items-center gap-3 mb-5">
+            <div className="flex flex-col xl:flex-row justify-between items-center gap-3 mb-5 w-full">
                 <div className="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
                     <div className="relative w-full md:w-64 lg:w-72">
                         <MagnifyingGlassIcon className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
@@ -164,10 +164,17 @@ export default function DataAgen() {
                     </button>
                 </div>
 
-                <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-primary-light hover:bg-accent-light hover:text-black transition-colors duration-300 shadow-sm">
-                    <PlusIcon className="w-5 h-5" />
-                    Tambah Data
-                </button>
+                <div className="flex flex-col sm:flex-row justify-between items-center w-full sm:w-auto gap-3">
+                    <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-primary-light hover:bg-accent-light hover:text-black transition-colors duration-300 shadow-sm">
+                        <PlusIcon className="w-5 h-5" />
+                        Tambah Data
+                    </button>
+
+                    <button className="flex items-center gap-2 w-full sm:w-auto justify-center px-5 py-2.5 rounded-xl font-medium text-white bg-success-base hover:bg-success-dark transition-colors duration-300 shadow-sm">
+                        <ArrowDownTrayIcon className="w-5 h-5" />
+                        Import Data
+                    </button>
+                </div>
             </div>
 
             <div className="w-full overflow-x-auto rounded-2xl border border-line-light bg-secondary-light shadow-md max-w-full">
